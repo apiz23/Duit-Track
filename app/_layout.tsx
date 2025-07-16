@@ -1,29 +1,35 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { enableScreens } from "react-native-screens";
+enableScreens();
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+import AuthGate from "@/components/authgate";
+import Constants from "expo-constants";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { Platform, View } from "react-native";
+import "../global.css";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+    return (
+        <AuthGate>
+            <View className="flex-1">
+                <View
+                    className="bg-black py-6"
+                    style={{
+                        height:
+                            Platform.OS === "android"
+                                ? Constants.statusBarHeight
+                                : 0,
+                    }}
+                />
+                <StatusBar style="light" />
 
-  if (!loaded) {
-    // Async font loading only occurs in development.
-    return null;
-  }
-
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
+                <Stack
+                    screenOptions={{
+                        headerShown: false,
+                        animation: "slide_from_right",
+                    }}
+                />
+            </View>
+        </AuthGate>
+    );
 }
