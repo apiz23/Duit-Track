@@ -1,10 +1,16 @@
-import { Link, useFocusEffect } from "expo-router";
+import { useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
+import AddDebtModal from "../components/debt/AddDebtModal";
 import DebtFilterPicker from "../components/debt/DebtFilterPicker";
 import DebtList from "../components/debt/DebtList";
 import EditDebtModal from "../components/debt/EditDebtModal";
-import { getDebts, updateDebt, updateDebtStatus } from "../storage/debts";
+import {
+    getDebts,
+    saveDebt,
+    updateDebt,
+    updateDebtStatus,
+} from "../storage/debts";
 import { Debt } from "../types/debt";
 
 export default function Index() {
@@ -101,6 +107,42 @@ export default function Index() {
         }
     };
 
+    const [addModalVisible, setAddModalVisible] = useState(false);
+    const [addForm, setAddForm] = useState<{
+        name: string;
+        amount: number;
+        reason: string;
+        status: Debt["status"];
+    }>({
+        name: "",
+        amount: 0,
+        reason: "",
+        status: "pending",
+    });
+
+    const openAddModal = () => {
+        setAddForm({ name: "", amount: 0, reason: "", status: "pending" });
+        setAddModalVisible(true);
+    };
+    const closeAddModal = () => setAddModalVisible(false);
+
+    const handleAddDebt = async () => {
+        if (!addForm.name || !addForm.amount || !addForm.reason) {
+            Alert.alert("Missing fields");
+            return;
+        }
+        const newDebt: Debt = {
+            ...addForm,
+            id: Date.now().toString(),
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            status: addForm.status as Debt["status"],
+        };
+        await saveDebt(newDebt);
+        closeAddModal();
+        loadDebts();
+    };
+
     return (
         <View className="flex-1 bg-black">
             <View className="flex-row justify-between items-center p-6 pb-4 bg-black border-b border-gray-800">
@@ -108,7 +150,7 @@ export default function Index() {
                     Duit Track
                 </Text>
             </View>
-            <View className="flex-row justify-end items-center px-4 py-6">
+            <View className="flex-row justify-end items-center m-4">
                 <DebtFilterPicker value={activeFilter} onChange={setFilter} />
             </View>
             <DebtList
@@ -118,34 +160,22 @@ export default function Index() {
                 onEdit={openEditModal}
                 formatDate={formatDate}
             />
-            <Link href="/screens/AddDebt" asChild>
-                <TouchableOpacity
-                    className="absolute bottom-12 right-8 bg-blue-600 w-16 h-16 rounded-full items-center justify-center"
-                    style={{ elevation: 5 }}
-                >
-                    <Text className="text-white text-3xl font-bold">+</Text>
-                </TouchableOpacity>
-            </Link>
-            {selectedIds.length > 0 && (
-                <View className="flex-row justify-around p-4 bg-gray-900 border-t border-gray-700">
-                    <TouchableOpacity
-                        className="bg-green-600 px-4 py-2 rounded-lg"
-                        onPress={() => updateMultipleStatus("paid")}
-                    >
-                        <Text className="text-white font-bold">
-                            Mark as Paid
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        className="bg-yellow-600 px-4 py-2 rounded-lg"
-                        onPress={() => updateMultipleStatus("pending")}
-                    >
-                        <Text className="text-white font-bold">
-                            Mark as Pending
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-            )}
+            {/* Add Button */}
+            <TouchableOpacity
+                className="absolute bottom-12 right-8 bg-blue-600 w-16 h-16 rounded-full items-center justify-center"
+                style={{ elevation: 5 }}
+                onPress={openAddModal}
+            >
+                <Text className="text-white text-3xl font-bold">+</Text>
+            </TouchableOpacity>
+            {/* Add Debt Modal */}
+            <AddDebtModal
+                visible={addModalVisible}
+                form={addForm}
+                onClose={closeAddModal}
+                onChange={setAddForm}
+                onSave={handleAddDebt}
+            />
             <EditDebtModal
                 visible={modalVisible}
                 debt={selectedDebt}

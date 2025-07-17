@@ -6,22 +6,26 @@ import { Debt } from "../../types/debt";
 import { Input } from "../input";
 import { Textarea } from "../textarea";
 
-interface EditDebtModalProps {
+interface AddDebtModalProps {
     visible: boolean;
-    debt: Debt | null;
+    form: {
+        name: string;
+        amount: number;
+        reason: string;
+        status: Debt["status"];
+    };
     onClose: () => void;
-    onChange: (debt: Debt) => void;
+    onChange: (form: AddDebtModalProps["form"]) => void;
     onSave: () => void;
 }
 
-const EditDebtModal: React.FC<EditDebtModalProps> = ({
+const AddDebtModal: React.FC<AddDebtModalProps> = ({
     visible,
-    debt,
+    form,
     onClose,
     onChange,
     onSave,
 }) => {
-    if (!debt) return null;
     return (
         <Modal
             visible={visible}
@@ -30,13 +34,13 @@ const EditDebtModal: React.FC<EditDebtModalProps> = ({
             onRequestClose={onClose}
         >
             <Pressable
-                className="flex-1 justify-end bg-black/40"
                 onPress={onClose}
+                className="flex-1 justify-end bg-black/40"
             >
                 <View className="bg-neutral-900 p-6 max-h-[85%] rounded-lg border-x-2 border-t-2 border-neutral-700">
                     <View className="flex-row justify-between items-center mb-6 rounded-lg">
                         <Text className="text-white text-xl font-bold">
-                            Edit Debt
+                            Add Debt
                         </Text>
                         <TouchableOpacity onPress={onClose}>
                             <Ionicons name="close" size={24} color="white" />
@@ -47,9 +51,9 @@ const EditDebtModal: React.FC<EditDebtModalProps> = ({
                             <Text className="text-gray-300 mb-1">Name</Text>
                             <Input
                                 placeholder="Friend's name"
-                                value={debt.name}
+                                value={form.name}
                                 onChangeText={(text) =>
-                                    onChange({ ...debt, name: text })
+                                    onChange({ ...form, name: text })
                                 }
                                 className="bg-gray-700 text-white"
                             />
@@ -61,9 +65,9 @@ const EditDebtModal: React.FC<EditDebtModalProps> = ({
                             <Input
                                 placeholder="0.00"
                                 keyboardType="numeric"
-                                value={String(debt.amount || "")}
+                                value={form.amount ? String(form.amount) : ""}
                                 onChangeText={(text) =>
-                                    onChange({ ...debt, amount: Number(text) })
+                                    onChange({ ...form, amount: Number(text) })
                                 }
                                 className="bg-gray-700 text-white"
                             />
@@ -72,9 +76,9 @@ const EditDebtModal: React.FC<EditDebtModalProps> = ({
                             <Text className="text-gray-300 mb-1">Reason</Text>
                             <Textarea
                                 placeholder="Reason for debt"
-                                value={debt.reason}
+                                value={form.reason}
                                 onChangeText={(text) =>
-                                    onChange({ ...debt, reason: text })
+                                    onChange({ ...form, reason: text })
                                 }
                                 className="bg-gray-700 text-white min-h-[70px]"
                             />
@@ -83,9 +87,9 @@ const EditDebtModal: React.FC<EditDebtModalProps> = ({
                             <Text className="text-gray-300 mb-1">Status</Text>
                             <View className="bg-gray-700 rounded-lg overflow-hidden">
                                 <Picker
-                                    selectedValue={debt.status}
+                                    selectedValue={form.status}
                                     onValueChange={(value) =>
-                                        onChange({ ...debt, status: value })
+                                        onChange({ ...form, status: value })
                                     }
                                     dropdownIconColor="white"
                                     style={{ color: "white" }}
@@ -111,7 +115,7 @@ const EditDebtModal: React.FC<EditDebtModalProps> = ({
                             className="flex-1 bg-blue-600 p-4 rounded-xl items-center"
                         >
                             <Text className="text-white font-bold">
-                                Save Changes
+                                Add Debt
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -121,4 +125,4 @@ const EditDebtModal: React.FC<EditDebtModalProps> = ({
     );
 };
 
-export default EditDebtModal;
+export default AddDebtModal;

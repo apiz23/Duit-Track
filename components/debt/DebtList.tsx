@@ -25,7 +25,7 @@ const DebtList: React.FC<DebtListProps> = ({
             <TouchableOpacity
                 onPress={() => onEdit(item)}
                 onLongPress={() => onSelect(item.id)}
-                className={`p-5 rounded-lg mb-4 relative ${
+                className={`p-4 rounded-lg mb-4 relative ${
                     item.status === "paid"
                         ? "bg-gray-900 border-l-4 border-green-500"
                         : "bg-gray-900 border-l-4 border-yellow-500"
